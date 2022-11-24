@@ -4,7 +4,7 @@ const initialState = {
 			id: 1,
 			title: 'Do laundry',
 			description: 'Wash socks, T-shorts and pants',
-			toDoDate: '13.12.2022',
+			dueDate: '13.12.2022',
 			isDone: false,
 			files: [],
 		},
@@ -12,7 +12,7 @@ const initialState = {
 			id: 2,
 			title: 'Finish job task',
 			description: 'Make toDo list app',
-			toDoDate: '30.11.2022',
+			dueDate: '30.11.2022',
 			isDone: true,
 			files: [],
 		},
@@ -20,15 +20,32 @@ const initialState = {
 };
 
 const reducer = (state = initialState, action = {}) => {
-  switch (action.type) {
+	switch (action.type) {
 
-		case 'TASKS_LOADED':
-			return {
-				...state, tasks: action.payload
-			};
+	case 'TASKS_LOADED':
+		return {
+			...state, tasks: action.payload
+		};
 
-		default:
-			return state;
+	case 'POST_TASK': {
+		const id = state.tasks.reduce((acc, task) => (acc < task.id) ? task.id : acc, 0) + 1;
+		const newTask = {
+			id,
+			title: '',
+			description: '',
+			dueDate: '',
+			isDone: false,
+			files: [],
+			...action.payload,
+		};
+
+		return {
+			...state, tasks: [...state.tasks, newTask]
+		};
+	}
+
+	default:
+		return state;
 	}
 };
 
