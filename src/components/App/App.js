@@ -2,7 +2,7 @@ import React from 'react';
 import ThePage from '../Pages/ThePage';
 
 const App = () => {
-  return (
+	return (
 		<ThePage/>
 	);
 };

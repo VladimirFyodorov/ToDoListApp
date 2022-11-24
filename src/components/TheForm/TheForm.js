@@ -1,21 +1,24 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import './TheForm.css';
-import { postTask } from '../../actions';
+import { postTask, editTask, endEditTask } from '../../actions';
 
-const TheForm = ({postTask}) => {
-	const [formData, setFormData] = useState({});
-	const {title, dueDate, describtion} = formData;
+const TheForm = ({formData, postTask, editTask, endEditTask}) => {
+	const {title, dueDate, description} = formData;
+
 
 	const onSubmit = () => {
-		postTask(formData);
-		setFormData({});
+		if (Object.hasOwn(formData, 'id')) {
+			endEditTask(formData);
+		} else {
+			postTask(formData);
+		}
 	};
 
 	const onChange = (e, key) => {
 		const newObj = {...formData};
 		newObj[key] = e.target.value;
-		setFormData(newObj);
+		editTask(newObj);
 	};
 
 	return (
@@ -23,19 +26,21 @@ const TheForm = ({postTask}) => {
 			<h3>Form</h3>
 			<input
 				placeholder="Title"
+				className="form"
 				value={title || ''}
 				onChange={(e) => onChange(e, 'title')}/>
 			<input
 				placeholder="Due date"
+				className="form"
 				type="date"
 				value={dueDate || ''}
 				onChange={(e) => onChange(e, 'dueDate')}/>
 			<textarea
-				placeholder="Describtion"
-				value={describtion || ''}
+				placeholder="Description"
+				value={description || ''}
 				onChange={(e) => onChange(e, 'describtion')}/>	
 			<div>
-				<input placeholder="Files"/>
+				<input className="form" placeholder="Files"/>
 			</div>
 			<button className="btn-login" type="submit" onClick={onSubmit}>Add</button>
 		</div>
@@ -43,9 +48,9 @@ const TheForm = ({postTask}) => {
 };
 
 const mapStateToProps = (state) => {
-	return {tasks: state.tasks};
+	return {formData: state.formData};
 };
 
-const mapDispatchToProps = {postTask};
+const mapDispatchToProps = { postTask, editTask, endEditTask };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TheForm);

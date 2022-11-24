@@ -2,8 +2,18 @@ div.to-do-list-item {
 	background-color: lightgray;
 	padding: 10px;
 	margin: 5px;
+
+	display: flex;
+	justify-content: space-between;
 }
 
 div.status-done {
 	background-color: gray;
+}
+
+div.task-btns {
+	width: 60px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
