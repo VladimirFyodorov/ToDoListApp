@@ -26,6 +26,10 @@ const endEditTask = (payload) => {
 	return {type: 'END_EDIT_TASK', payload};
 };
 
+const showTask = (payload) => {
+	return {type: 'SHOW_TASK', payload};
+};
+
 export {
 	tasksLoaded,
 	postTask,
@@ -34,4 +38,5 @@ export {
 	startEditTask,
 	editTask,
 	endEditTask,
+	showTask,
 };

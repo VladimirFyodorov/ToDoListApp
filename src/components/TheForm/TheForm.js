@@ -38,7 +38,7 @@ const TheForm = ({formData, postTask, editTask, endEditTask}) => {
 			<textarea
 				placeholder="Description"
 				value={description || ''}
-				onChange={(e) => onChange(e, 'describtion')}/>	
+				onChange={(e) => onChange(e, 'description')}/>	
 			<div>
 				<input className="form" placeholder="Files"/>
 			</div>

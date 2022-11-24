@@ -3,11 +3,15 @@ import {connect} from 'react-redux';
 import './ToDoList.css';
 import ToDoListItem from '../ToDoListItem';
 
-const ToDoList = ({tasks}) => {
+const ToDoList = ({tasks, formData}) => {
 	return (
 		<div className="to-do-list">
 			<h3>Tasks</h3>
-			{tasks && tasks.map(task => <ToDoListItem key={task.id} task={task}/>)}
+			{tasks && 
+				tasks
+					// task shouldn't both in form and in list => filter it out
+					.filter(task => task.id !== formData.id)
+					.map(task => <ToDoListItem key={task.id} task={task}/>)}
 		</div>
 	);
 };
@@ -15,6 +19,7 @@ const ToDoList = ({tasks}) => {
 const mapStateToProps = (state) => {
 	return {
 		tasks: state.tasks,
+		formData: state.formData,
 	};
 };
 

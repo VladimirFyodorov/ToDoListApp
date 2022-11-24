@@ -2,9 +2,21 @@ div.to-do-list-item {
 	background-color: lightgray;
 	padding: 10px;
 	margin: 5px;
+}
 
+div.task-main-data {
 	display: flex;
 	justify-content: space-between;
+}
+
+div.task-option-description {
+	border-top: 1px;
+	border-color: black;
+}
+
+p.task-option-description {
+	margin: 0;
+	font-size: smaller;
 }
 
 div.status-done {

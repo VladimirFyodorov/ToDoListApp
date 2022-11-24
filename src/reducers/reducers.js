@@ -18,6 +18,7 @@ const initialState = {
 		},
 	],
 	formData: {hasData: false},
+	showedTaskId: -1,
 };
 
 const reducer = (state = initialState, action = {}) => {
@@ -40,8 +41,16 @@ const reducer = (state = initialState, action = {}) => {
 			...action.payload,
 		};
 
+		if (!newTask.title) {
+			alert("Can't add task without title");
+			return state;
+		} else if (!newTask.dueDate) {
+			alert("Can't add task without date");
+			return state;
+		}
+
 		return {
-			...state, tasks: [...state.tasks, newTask]
+			...state, tasks: [...state.tasks, newTask], formData: {hasData: false}
 		};
 	}
 
@@ -79,6 +88,12 @@ const reducer = (state = initialState, action = {}) => {
 		console.log({...state, tasks, formData: {hasData: false}});
 
 		return {...state, tasks, formData: {hasData: false}};
+	}
+
+	case 'SHOW_TASK': {
+		// if same id => this is a second click => hide task => id = -1
+		const showedTaskId = (state.showedTaskId === action.payload) ? -1 : action.payload;
+		return {...state, showedTaskId};
 	}
 
 	default:
