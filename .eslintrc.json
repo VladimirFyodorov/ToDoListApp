@@ -21,7 +21,7 @@
     "rules": {
         "indent": [
             "error",
-            2
+            "tab"
         ],
         "quotes": [2, "single", { "avoidEscape": true }],
         "linebreak-style": [

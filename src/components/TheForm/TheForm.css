@@ -1,0 +1,53 @@
+div.the-form {
+	/* margin-left: 42vw; */
+	/* margin-left: 10vw; */
+	width: 423px;
+	/* height: 495px; */
+	min-height: 30vh;
+	margin-top: 10vh;
+	padding: 50px;
+	border-radius: 4px;
+	box-shadow: 2px 6px 20px 2px rgba(0, 0, 0, 0.15);
+}
+
+div.name-and-date {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+input {
+	width: 100%;
+	border-width: 0px;
+	border-bottom-width: 1px;
+	border-bottom-color: rgba(220, 220, 220, 1);
+	height:30px;
+	outline: none;
+	margin-bottom: 10px;
+}
+
+input:focus {
+	border-bottom-width: 2px;
+	border-bottom-color: rgba(49, 139, 222, 1);
+	background-color: white;
+}
+
+textarea {
+  width: 100%;
+  min-height: 50px;
+}
+
+button.btn-login {
+	width: 200px;
+	height:30px;
+	font-size: 14px;
+	font-weight: normal;
+	color: white;
+	background-color: rgba(49, 139, 222, 1);
+	margin-top: 22px;
+	margin-left: 223px;
+	border-width: 0px;
+	border-radius: 6px;
+
+	cursor: pointer;
+}
