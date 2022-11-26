@@ -1,5 +1,6 @@
 import React from 'react';
 import './ToDoListItem.css';
+import * as dayjs from 'dayjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 
@@ -9,8 +10,9 @@ import db from '../../firebase';
 function ToDoListItem({
   task, toggleShowedTaskId, showedTaskId, setFormData,
 }) {
-  const strName = `${task.title}: due ${task.dueDate}`;
-  const strClassName = `to-do-list-item ${(task.isDone ? 'status-done' : '')}`;
+  const strName = `${task.title}: due ${dayjs(task.dueDate).format('ddd DD.MM.YYYY')}`;
+  const isCompleted = task.isDone || Date.now() >= Date.parse(task.dueDate);
+  const strClassName = `to-do-list-item ${(isCompleted ? 'status-done' : '')}`;
   const strDescription = `Description: ${task.description}`;
   const thisTaskIsShowed = task.uuid === showedTaskId;
 
