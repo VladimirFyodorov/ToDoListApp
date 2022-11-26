@@ -1,26 +1,36 @@
-import React from 'react';
-import {connect} from 'react-redux';
+import React, { useState } from 'react';
 import './ToDoList.css';
 import ToDoListItem from '../ToDoListItem';
 
-const ToDoList = ({tasks, formData}) => {
+
+const ToDoList = ({tasks, formData, setFormData}) => {
+
+	const [showedTaskId, setShowedTaskId] = useState('');
+
+	const toggleShowedTaskId = (id) => {
+		if (id !== showedTaskId) {
+			setShowedTaskId(id);
+		} else {
+			setShowedTaskId('');
+		}
+	};
+
 	return (
 		<div className="to-do-list">
 			<h3>Tasks</h3>
 			{tasks && 
 				tasks
-					// task shouldn't both in form and in list => filter it out
-					.filter(task => task.id !== formData.id)
-					.map(task => <ToDoListItem key={task.id} task={task}/>)}
+					// task shouldn't be both in form and in list => filter it out
+					.filter(task => task.uuid !== formData.uuid)
+					.map(task => <ToDoListItem
+						key={task.uuid}
+						task={task}
+						setFormData={setFormData}
+						showedTaskId={showedTaskId}
+						toggleShowedTaskId={toggleShowedTaskId}/>)}
 		</div>
 	);
 };
 
-const mapStateToProps = (state) => {
-	return {
-		tasks: state.tasks,
-		formData: state.formData,
-	};
-};
 
-export default connect(mapStateToProps)(ToDoList);
+export default ToDoList;

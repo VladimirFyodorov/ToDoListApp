@@ -1,24 +1,34 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import './TheForm.css';
-import { postTask, editTask, endEditTask } from '../../actions';
+import { db } from '../../firebase';
+import { uid } from 'uid';
+import { set, ref, update } from 'firebase/database';
 
-const TheForm = ({formData, postTask, editTask, endEditTask}) => {
-	const {title, dueDate, description} = formData;
+
+const TheForm = ({formData, setFormData}) => {
+	const {uuid, title, dueDate, description} = formData;
+
+	const cleanForm = () => {
+		setFormData({title: '', dueDate: '', description: '', files: [], isDone: false});
+	};
 
 
 	const onSubmit = () => {
-		if (Object.hasOwn(formData, 'id')) {
-			endEditTask(formData);
+		// has uuid => update, else => post
+		if (Object.hasOwn(formData, 'uuid')) {
+			update(ref(db, `/${uuid}`), formData);
+			cleanForm();
 		} else {
-			postTask(formData);
+			const newTask = {...formData, uuid: uid()};
+			set(ref(db, `/${newTask.uuid}`), newTask);
+			cleanForm();
 		}
 	};
 
 	const onChange = (e, key) => {
 		const newObj = {...formData};
 		newObj[key] = e.target.value;
-		editTask(newObj);
+		setFormData(newObj);
 	};
 
 	return (
@@ -47,10 +57,5 @@ const TheForm = ({formData, postTask, editTask, endEditTask}) => {
 	);
 };
 
-const mapStateToProps = (state) => {
-	return {formData: state.formData};
-};
 
-const mapDispatchToProps = { postTask, editTask, endEditTask };
-
-export default connect(mapStateToProps, mapDispatchToProps)(TheForm);
+export default TheForm;
