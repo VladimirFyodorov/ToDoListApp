@@ -4,17 +4,23 @@ import * as dayjs from 'dayjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 
-import { ref, update, remove } from 'firebase/database';
-import db from '../../firebase';
+import { ref as dbRef, update, remove } from 'firebase/database';
+import { ref as storageRef, deleteObject } from 'firebase/storage';
+import { db, storage } from '../../firebase';
 
 function ToDoListItem({
-  task, toggleShowedTaskId, showedTaskId, setFormData,
+  task, allFiles, toggleShowedTaskId, showedTaskId, setFormData, setTasks, setFiles,
 }) {
   const strName = `${task.title}: due ${dayjs(task.dueDate).format('ddd DD.MM.YYYY')}`;
   const isCompleted = task.isDone || Date.now() >= Date.parse(task.dueDate);
   const strClassName = `to-do-list-item ${(isCompleted ? 'status-done' : '')}`;
   const strDescription = `Description: ${task.description}`;
   const thisTaskIsShowed = task.uuid === showedTaskId;
+  // const taskFilesUuids = task.files.map((f) => f.uuid);
+  // const files = (allFiles) ? allFiles.filter((file) => taskFilesUuids.includes(file.uuid)) : [];
+  const files = (task || []).files.map((f) => (
+    { ...f, ...allFiles.find((af) => af.uuid === f.uuid) }
+  ));
 
   const onShowTask = (e) => {
     // check that it wasn't click on btn. If so than show
@@ -25,7 +31,7 @@ function ToDoListItem({
 
   const toggleTaskIsDone = () => {
     const newTask = { ...task, isDone: !task.isDone };
-    update(ref(db, `/${task.uuid}`), newTask);
+    update(dbRef(db, `/${task.uuid}`), newTask);
   };
 
   const handleEdit = () => {
@@ -33,7 +39,14 @@ function ToDoListItem({
   };
 
   const handleDelete = () => {
-    remove(ref(db, `/${task.uuid}`));
+    // delete task
+    remove(dbRef(db, `/${task.uuid}`)).then(() => (
+      setTasks((tasks) => tasks.filter(({ uuid }) => uuid !== task.uuid))
+    ));
+    // delete files
+    deleteObject(storageRef(storage, `/${task.files[0].uuid}`)).then(() => (
+      setFiles((file) => file.filter(({ uuid }) => uuid !== task.files[0].uuid))
+    ));
   };
 
   return (
@@ -63,7 +76,20 @@ function ToDoListItem({
         </div>
       </div>
       {thisTaskIsShowed
-      && <p className="task-option-description">{strDescription}</p>}
+      && (
+        <>
+          <p className="task-option-description">{strDescription}</p>
+          <p className="task-option-description">Files:</p>
+        </>
+      )}
+      {thisTaskIsShowed && files.length > 0
+      && files.map((file) => (
+        <p key={file?.uuid} className="task-option-description">
+          <a className="task-option-description" href={file?.url}>
+            {file?.name}
+          </a>
+        </p>
+      ))}
     </div>
   );
 }

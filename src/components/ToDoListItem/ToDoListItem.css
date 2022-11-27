@@ -19,6 +19,11 @@ p.task-option-description {
 	font-size: smaller;
 }
 
+a.task-option-description {
+	margin: 0;
+	font-size: smaller;
+}
+
 div.status-done {
 	background-color: gray;
 }

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './ThePage.css';
-import { ref, onValue } from 'firebase/database';
+import { ref as dbRef, onValue } from 'firebase/database';
+import { ref as storageRef, listAll, getDownloadURL } from 'firebase/storage';
 import ToDoList from '../ToDoList';
 import TheForm from '../TheForm';
 
-import db from '../../firebase';
+import { db, storage } from '../../firebase';
 
 function ThePage() {
   const blankTask = {
@@ -12,9 +13,10 @@ function ThePage() {
   };
   const [formData, setFormData] = useState(blankTask);
   const [tasks, setTasks] = useState([]);
+  const [files, setFiles] = useState([]);
 
   useEffect(() => {
-    onValue(ref(db), (snapshot) => {
+    onValue(dbRef(db), (snapshot) => {
       const data = snapshot.val();
       if (data !== null) {
         setTasks(Object.values(data));
@@ -22,10 +24,35 @@ function ThePage() {
     });
   }, []);
 
+  useEffect(() => {
+    listAll(storageRef(storage))
+      .then((res) => {
+        res.items.forEach((item) => {
+          const uuid = item._location.path_;
+          getDownloadURL(item).then((url) => {
+            setFiles((fs) => [...fs, { url, uuid }]);
+          });
+        });
+      });
+  }, []);
+
   return (
     <div className="wrapper">
-      <ToDoList formData={formData} setFormData={setFormData} tasks={tasks} />
-      <TheForm formData={formData} setFormData={setFormData} />
+      <ToDoList
+        formData={formData}
+        setFormData={setFormData}
+        tasks={tasks}
+        setTasks={setTasks}
+        setFiles={setFiles}
+        files={files}
+      />
+      <TheForm
+        formData={formData}
+        setFormData={setFormData}
+        setTasks={setTasks}
+        setFiles={setFiles}
+        allFiles={files}
+      />
     </div>
   );
 }

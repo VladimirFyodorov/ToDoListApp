@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import './ToDoList.css';
 import ToDoListItem from '../ToDoListItem';
 
-function ToDoList({ tasks, formData, setFormData }) {
+function ToDoList({
+  tasks, files, formData, setFormData, setTasks, setFiles,
+}) {
   const [showedTaskId, setShowedTaskId] = useState('');
 
   const toggleShowedTaskId = (id) => {
@@ -24,6 +26,9 @@ function ToDoList({ tasks, formData, setFormData }) {
           <ToDoListItem
             key={task.uuid}
             task={task}
+            setTasks={setTasks}
+            allFiles={files}
+            setFiles={setFiles}
             setFormData={setFormData}
             showedTaskId={showedTaskId}
             toggleShowedTaskId={toggleShowedTaskId}
