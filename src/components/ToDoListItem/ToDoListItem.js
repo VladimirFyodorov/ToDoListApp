@@ -9,7 +9,7 @@ import { ref as storageRef, deleteObject } from 'firebase/storage';
 import { db, storage } from '../../firebase';
 
 function ToDoListItem({
-  task, allFiles, toggleShowedTaskId, showedTaskId, setFormData, setTasks, setFiles,
+  task, setTasks, filesUrls, setFilesUrls, showedTaskId, toggleShowedTaskId, setFormData,
 }) {
   const formatedDate = (task.dueDate) ? dayjs(task.dueDate).format('ddd DD.MM.YYYY') : '';
   const strName = `${task.title}: due ${formatedDate}`;
@@ -18,9 +18,9 @@ function ToDoListItem({
   const strClassName = `to-do-list-item ${(isCompleted ? 'status-done' : '')}`;
   const strDescription = `Description: ${task.description}`;
   const thisTaskIsShowed = task.uuid === showedTaskId;
-  // for each task's files find file's url in allFiles
+  // for each task's files find file's url in filesUrls
   const files = (task?.files || []).map((f) => (
-    { ...f, ...allFiles.find((af) => af.uuid === f.uuid) }
+    { ...f, ...filesUrls.find((af) => af.uuid === f.uuid) }
   ));
 
   const onShowTask = (e) => {
@@ -49,7 +49,7 @@ function ToDoListItem({
       // delete file on the server
       deleteObject(storageRef(storage, `/${f.uuid}`)).then(() => (
         // delete file localy
-        setFiles((file) => file.filter(({ uuid }) => uuid !== f.uuid))
+        setFilesUrls((file) => file.filter(({ uuid }) => uuid !== f.uuid))
       ));
     });
   };

@@ -13,7 +13,7 @@ function ThePage() {
   };
   const [formData, setFormData] = useState(blankTask);
   const [tasks, setTasks] = useState([]);
-  const [files, setFiles] = useState([]);
+  const [filesUrls, setFilesUrls] = useState([]);
 
   // loading tasks
   useEffect(() => {
@@ -25,7 +25,7 @@ function ThePage() {
     });
   }, []);
 
-  // loading files
+  // loading filesUrls
   useEffect(() => {
     listAll(storageRef(storage))
       .then((res) => {
@@ -33,7 +33,7 @@ function ThePage() {
           const uuid = item._location.path_;
           // loading files' urls
           getDownloadURL(item).then((url) => {
-            setFiles((fs) => [...fs, { url, uuid }]);
+            setFilesUrls((fs) => [...fs, { url, uuid }]);
           });
         });
       });
@@ -46,15 +46,15 @@ function ThePage() {
         setFormData={setFormData}
         tasks={tasks}
         setTasks={setTasks}
-        setFiles={setFiles}
-        files={files}
+        setFilesUrls={setFilesUrls}
+        filesUrls={filesUrls}
       />
       <TheForm
         formData={formData}
         setFormData={setFormData}
         setTasks={setTasks}
-        setFiles={setFiles}
-        allFiles={files}
+        setFilesUrls={setFilesUrls}
+        filesUrls={filesUrls}
       />
     </div>
   );

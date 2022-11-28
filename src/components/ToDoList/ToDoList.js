@@ -3,7 +3,7 @@ import './ToDoList.css';
 import ToDoListItem from '../ToDoListItem';
 
 function ToDoList({
-  tasks, files, formData, setFormData, setTasks, setFiles,
+  tasks, setTasks, filesUrls, setFilesUrls, formData, setFormData,
 }) {
   const [showedTaskId, setShowedTaskId] = useState('');
 
@@ -28,8 +28,8 @@ function ToDoList({
             key={task.uuid}
             task={task}
             setTasks={setTasks}
-            allFiles={files}
-            setFiles={setFiles}
+            filesUrls={filesUrls}
+            setFilesUrls={setFilesUrls}
             setFormData={setFormData}
             showedTaskId={showedTaskId}
             toggleShowedTaskId={toggleShowedTaskId}

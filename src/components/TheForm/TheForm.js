@@ -10,13 +10,13 @@ import {
 import { db, storage } from '../../firebase';
 
 function TheForm({
-  formData, setFormData, setFiles, allFiles,
+  formData, setFormData, filesUrls, setFilesUrls,
 }) {
   const {
     uuid, title, dueDate, description, files,
   } = formData;
 
-  const [unsavedFilesUuids, setunsavedFilesUuids] = useState([]);
+  const [unsavedFilesUuids, setUnsavedFilesUuids] = useState([]);
   const [fileInputKey, setFileInputKey] = useState(0);
 
   const cleanForm = () => {
@@ -40,7 +40,7 @@ function TheForm({
     // add files to formData
     setFormData({ ...formData, files: [...files, ...newFiles] });
     // add files' UUIDs to unsavedFilesUuids
-    setunsavedFilesUuids([...unsavedFilesUuids, ...newFiles.map((f) => f.uuid)]);
+    setUnsavedFilesUuids([...unsavedFilesUuids, ...newFiles.map((f) => f.uuid)]);
     // clean file input through rerendering
     setFileInputKey((key) => key + 1);
   };
@@ -50,7 +50,7 @@ function TheForm({
     if (unsavedFilesUuids.includes(fileUuid)) {
       // hasn't been uploaded to server => delete localy
       // delete from unsaved files
-      setunsavedFilesUuids(unsavedFilesUuids.filter((id) => id !== fileUuid));
+      setUnsavedFilesUuids(unsavedFilesUuids.filter((id) => id !== fileUuid));
       // delete from formData
       const newFiles = files.filter((f) => f.uuid !== fileUuid);
       setFormData((data) => ({ ...data, files: newFiles }));
@@ -59,7 +59,7 @@ function TheForm({
       // delete on the server
       deleteObject(storageRef(storage, `/${fileUuid}`)).then(() => {
         // delete from files
-        setFiles((fs) => fs.filter((f) => f.uuid !== fileUuid));
+        setFilesUrls((fs) => fs.filter((f) => f.uuid !== fileUuid));
         // delete from formData
         const newFiles = files.filter((f) => f.uuid !== fileUuid);
         setFormData((data) => ({ ...data, files: newFiles }));
@@ -88,9 +88,9 @@ function TheForm({
     files.filter((f) => unsavedFilesUuids.includes(f.uuid)).forEach((file) => {
       // upload file
       uploadBytes(storageRef(storage, `/${file.uuid}`), file).then((snapshot) => {
-        // save upload file's url
+        // save uploaded file's url
         getDownloadURL(snapshot.ref).then((url) => {
-          setFiles((urls) => [...urls, { url, uuid: file.uuid }]);
+          setFilesUrls((urls) => [...urls, { url, uuid: file.uuid }]);
         });
       });
     });
@@ -132,7 +132,7 @@ function TheForm({
         <div key={file?.uuid}>
           <a
             className="form-file"
-            href={allFiles.find((f) => f.uuid === file?.uuid)?.url}
+            href={filesUrls.find((f) => f.uuid === file?.uuid)?.url}
           >
             {`${file?.name} `}
           </a>
