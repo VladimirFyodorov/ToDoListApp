@@ -15,6 +15,7 @@ function ThePage() {
   const [tasks, setTasks] = useState([]);
   const [files, setFiles] = useState([]);
 
+  // loading tasks
   useEffect(() => {
     onValue(dbRef(db), (snapshot) => {
       const data = snapshot.val();
@@ -24,11 +25,13 @@ function ThePage() {
     });
   }, []);
 
+  // loading files
   useEffect(() => {
     listAll(storageRef(storage))
       .then((res) => {
         res.items.forEach((item) => {
           const uuid = item._location.path_;
+          // loading files' urls
           getDownloadURL(item).then((url) => {
             setFiles((fs) => [...fs, { url, uuid }]);
           });

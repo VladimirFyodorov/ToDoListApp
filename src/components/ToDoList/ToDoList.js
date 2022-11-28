@@ -8,6 +8,7 @@ function ToDoList({
   const [showedTaskId, setShowedTaskId] = useState('');
 
   const toggleShowedTaskId = (id) => {
+    // if same ids => this is the second click on same row => need to hide this row
     if (id !== showedTaskId) {
       setShowedTaskId(id);
     } else {

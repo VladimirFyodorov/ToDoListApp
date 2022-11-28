@@ -16,7 +16,7 @@ function TheForm({
     uuid, title, dueDate, description, files,
   } = formData;
 
-  const [unsavedFiles, setUnsavedFiles] = useState([]);
+  const [unsavedFilesUuids, setunsavedFilesUuids] = useState([]);
   const [fileInputKey, setFileInputKey] = useState(0);
 
   const cleanForm = () => {
@@ -37,24 +37,30 @@ function TheForm({
     const newFiles = Object.values(e.target.files).map(({ name, type }) => (
       { uuid: uid(), name, type }
     ));
-    console.log(newFiles);
+    // add files to formData
     setFormData({ ...formData, files: [...files, ...newFiles] });
-    setUnsavedFiles([...unsavedFiles, ...newFiles.map((f) => f.uuid)]);
-    // this will rerender file input
+    // add files' UUIDs to unsavedFilesUuids
+    setunsavedFilesUuids([...unsavedFilesUuids, ...newFiles.map((f) => f.uuid)]);
+    // clean file input through rerendering
     setFileInputKey((key) => key + 1);
   };
 
   const deleteFile = (fileUuid) => {
     // delete files
-    if (unsavedFiles.includes(fileUuid)) {
-      // cleaning unsaved files
-      setUnsavedFiles(unsavedFiles.filter((id) => id !== fileUuid));
-      // cleaning form data
+    if (unsavedFilesUuids.includes(fileUuid)) {
+      // hasn't been uploaded to server => delete localy
+      // delete from unsaved files
+      setunsavedFilesUuids(unsavedFilesUuids.filter((id) => id !== fileUuid));
+      // delete from formData
       const newFiles = files.filter((f) => f.uuid !== fileUuid);
       setFormData((data) => ({ ...data, files: newFiles }));
     } else {
+      // has been uploaded to server => delete globaly and localy
+      // delete on the server
       deleteObject(storageRef(storage, `/${fileUuid}`)).then(() => {
+        // delete from files
         setFiles((fs) => fs.filter((f) => f.uuid !== fileUuid));
+        // delete from formData
         const newFiles = files.filter((f) => f.uuid !== fileUuid);
         setFormData((data) => ({ ...data, files: newFiles }));
       });
@@ -62,35 +68,33 @@ function TheForm({
   };
 
   const onSubmit = () => {
-    // has uuid => update, else => post
+    if (!title || !dueDate) {
+      alert('Task has to have Title and Date');
+      return;
+    }
+    // if task has uuid => it's been uploaded to server => need to UPDATE, else POST
     if (Object.hasOwn(formData, 'uuid')) {
+      // update task
       update(dbRef(db, `/${uuid}`), formData);
-      cleanForm();
     } else {
-      const taskUUID = uid();
-      const taskData = {
-        uuid: taskUUID, title, dueDate, description, isDone: false,
+      const newTask = {
+        uuid: uid(), title, dueDate, description, isDone: false, files,
       };
-      // const filesMetaData = files.map((f) => {
-      //   return { uuid: uid(), name: files[0].name, type: files[0].type };
-      // });
-      const newTask = { ...taskData, files };
-      console.log(newTask);
+      // POST task
+      set(dbRef(db, `/${newTask.uuid}`), newTask);
+    }
 
-      // save task
-      set(dbRef(db, `/${taskUUID}`), newTask);
-
-      // save files
-      files.filter((f) => unsavedFiles.includes(f.uuid)).forEach((file) => {
-        uploadBytes(storageRef(storage, `/${file.uuid}`), file).then((snapshot) => {
-          alert('files uploaded');
-          getDownloadURL(snapshot.ref).then((url) => {
-            setFiles((urls) => [...urls, { url, uuid: file.uuid }]);
-          });
+    // save unsaved files
+    files.filter((f) => unsavedFilesUuids.includes(f.uuid)).forEach((file) => {
+      // upload file
+      uploadBytes(storageRef(storage, `/${file.uuid}`), file).then((snapshot) => {
+        // save upload file's url
+        getDownloadURL(snapshot.ref).then((url) => {
+          setFiles((urls) => [...urls, { url, uuid: file.uuid }]);
         });
       });
-      cleanForm();
-    }
+    });
+    cleanForm();
   };
 
   return (
@@ -123,9 +127,6 @@ function TheForm({
         multiple
         onChange={onChangeFiles}
       />
-      {/* <label htmlFor="fileUpload">
-          <a> Upload Files </a>
-      </label> */}
       {files
       && files.map((file) => (
         <div key={file?.uuid}>

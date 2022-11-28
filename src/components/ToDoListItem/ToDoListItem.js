@@ -11,19 +11,20 @@ import { db, storage } from '../../firebase';
 function ToDoListItem({
   task, allFiles, toggleShowedTaskId, showedTaskId, setFormData, setTasks, setFiles,
 }) {
-  const strName = `${task.title}: due ${dayjs(task.dueDate).format('ddd DD.MM.YYYY')}`;
+  const formatedDate = (task.dueDate) ? dayjs(task.dueDate).format('ddd DD.MM.YYYY') : '';
+  const strName = `${task.title}: due ${formatedDate}`;
+  // completed if task is done or if deadline has past
   const isCompleted = task.isDone || Date.now() >= Date.parse(task.dueDate);
   const strClassName = `to-do-list-item ${(isCompleted ? 'status-done' : '')}`;
   const strDescription = `Description: ${task.description}`;
   const thisTaskIsShowed = task.uuid === showedTaskId;
-  // const taskFilesUuids = task.files.map((f) => f.uuid);
-  // const files = (allFiles) ? allFiles.filter((file) => taskFilesUuids.includes(file.uuid)) : [];
-  const files = (task || []).files.map((f) => (
+  // for each task's files find file's url in allFiles
+  const files = (task?.files || []).map((f) => (
     { ...f, ...allFiles.find((af) => af.uuid === f.uuid) }
   ));
 
   const onShowTask = (e) => {
-    // check that it wasn't click on btn. If so than show
+    // check that it wasn't click on btns. If so than show
     if (!['checkbox', 'editBtn', 'deleteBtn'].includes(e.target.id)) {
       toggleShowedTaskId(task.uuid);
     }
@@ -43,10 +44,14 @@ function ToDoListItem({
     remove(dbRef(db, `/${task.uuid}`)).then(() => (
       setTasks((tasks) => tasks.filter(({ uuid }) => uuid !== task.uuid))
     ));
-    // delete files
-    deleteObject(storageRef(storage, `/${task.files[0].uuid}`)).then(() => (
-      setFiles((file) => file.filter(({ uuid }) => uuid !== task.files[0].uuid))
-    ));
+    // delete task's files
+    task.files.forEach((f) => {
+      // delete file on the server
+      deleteObject(storageRef(storage, `/${f.uuid}`)).then(() => (
+        // delete file localy
+        setFiles((file) => file.filter(({ uuid }) => uuid !== f.uuid))
+      ));
+    });
   };
 
   return (
