@@ -36,7 +36,6 @@ function ThePage() {
     });
   }, []);
 
-
   /**
    * @access public
    * @memberof ThePage

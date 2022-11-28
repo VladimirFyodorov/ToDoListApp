@@ -115,7 +115,7 @@ function ToDoListItem({
       setTasks((tasks) => tasks.filter(({ uuid }) => uuid !== task.uuid))
     ));
     // delete task's files
-    task.files.forEach((f) => {
+    (task.files || []).forEach((f) => {
       // delete file on the server
       deleteObject(storageRef(storage, `/${f.uuid}`)).then(() => (
         // delete file's url localy

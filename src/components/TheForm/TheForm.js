@@ -11,8 +11,8 @@ import { db, storage } from '../../firebase';
 
 /**
  * @namespace TheForm
- * @param {Array} formData - Form's data 
- * @param {Function} setFormData - Dispatcher for changing formData 
+ * @param {Array} formData - Form's data
+ * @param {Function} setFormData - Dispatcher for changing formData
  * @param {Array} filesUrls - Fils' URLs
  * @param {Function} setFilesUrls - Dispatcher for changing filesUrls
  */
@@ -20,7 +20,7 @@ function TheForm({
   formData, setFormData, filesUrls, setFilesUrls,
 }) {
   const {
-    uuid, title, dueDate, description, files,
+    uuid, title, dueDate, description, files = [],
   } = formData;
 
   const [fileInputKey, setFileInputKey] = useState(0);
