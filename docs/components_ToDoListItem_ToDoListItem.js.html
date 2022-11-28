@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ToDoListItem/ToDoListItem.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ToDoListItem/ToDoListItem.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import './ToDoListItem.css';
+import * as dayjs from 'dayjs';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
+
+import { ref as dbRef, update, remove } from 'firebase/database';
+import { ref as storageRef, deleteObject } from 'firebase/storage';
+import { db, storage } from '../../firebase';
+
+/**
+ * @namespace ToDoListItem
+ * @desc Renders list item
+ */
+function ToDoListItem({
+  task, setTasks, filesUrls, setFilesUrls, showedTaskId, toggleShowedTaskId, setFormData,
+}) {
+  const formatedDate = (task.dueDate) ? dayjs(task.dueDate).format('ddd DD.MM.YYYY') : '';
+  const strName = `${task.title}: due ${formatedDate}`;
+  // completed if task is done or if deadline has past
+  const isCompleted = task.isDone || Date.now() >= Date.parse(task.dueDate);
+  const strClassName = `to-do-list-item ${(isCompleted ? 'status-done' : '')}`;
+  const strDescription = `Description: ${task.description}`;
+  const thisTaskIsShowed = task.uuid === showedTaskId;
+  // for each task's files find file's url in filesUrls
+  const files = (task?.files || []).map((f) => (
+    { ...f, ...filesUrls.find((af) => af.uuid === f.uuid) }
+  ));
+
+  const onShowTask = (e) => {
+    // check that it wasn't click on btns. If so than show
+    if (!['checkbox', 'editBtn', 'deleteBtn'].includes(e.target.id)) {
+      toggleShowedTaskId(task.uuid);
+    }
+  };
+
+  const toggleTaskIsDone = () => {
+    const newTask = { ...task, isDone: !task.isDone };
+    update(dbRef(db, `/${task.uuid}`), newTask);
+  };
+
+  const handleEdit = () => {
+    setFormData(task);
+  };
+
+  const handleDelete = () => {
+    // delete task
+    remove(dbRef(db, `/${task.uuid}`)).then(() => (
+      setTasks((tasks) => tasks.filter(({ uuid }) => uuid !== task.uuid))
+    ));
+    // delete task's files
+    task.files.forEach((f) => {
+      // delete file on the server
+      deleteObject(storageRef(storage, `/${f.uuid}`)).then(() => (
+        // delete file's url localy
+        setFilesUrls((file) => file.filter(({ uuid }) => uuid !== f.uuid))
+      ));
+    });
+  };
+
+  return (
+    &lt;div className={strClassName} onClick={onShowTask}>
+      &lt;div className="task-main-data">
+        &lt;p>{strName}&lt;/p>
+        &lt;div className="task-btns">
+          &lt;input
+            id="checkbox"
+            type="checkbox"
+            checked={task.isDone}
+            style={{ cursor: 'pointer' }}
+            onChange={toggleTaskIsDone}
+          />
+          &lt;FontAwesomeIcon
+            id="editBtn"
+            icon={faEdit}
+            style={{ cursor: 'pointer' }}
+            onClick={handleEdit}
+          />
+          &lt;FontAwesomeIcon
+            id="deleteBtn"
+            icon={faTrash}
+            style={{ cursor: 'pointer' }}
+            onClick={handleDelete}
+          />
+        &lt;/div>
+      &lt;/div>
+      {thisTaskIsShowed
+      &amp;&amp; (
+        &lt;>
+          &lt;p className="task-option-description">{strDescription}&lt;/p>
+          &lt;p className="task-option-description">Files:&lt;/p>
+        &lt;/>
+      )}
+      {thisTaskIsShowed &amp;&amp; files
+      &amp;&amp; files.map((file) => (
+        &lt;p key={file?.uuid} className="task-option-description">
+          &lt;a className="task-option-description" href={file?.url}>
+            {file?.name}
+          &lt;/a>
+        &lt;/p>
+      ))}
+    &lt;/div>
+  );
+}
+
+export default ToDoListItem;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="TheForm.html">TheForm</a></li><li><a href="ThePage.html">ThePage</a></li><li><a href="ToDoList.html">ToDoList</a></li><li><a href="ToDoListItem.html">ToDoListItem</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#app">app</a></li><li><a href="global.html#db">db</a></li><li><a href="global.html#firebaseConfig">firebaseConfig</a></li><li><a href="global.html#storage">storage</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Mon Nov 28 2022 23:50:01 GMT+0600 (East Kazakhstan Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

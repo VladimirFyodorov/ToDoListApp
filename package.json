@@ -24,6 +24,7 @@
   "scripts": {
     "start": "NODE_ENV=production node_modules/react-scripts/bin/react-scripts.js start",
     "build": "NODE_ENV=production node_modules/react-scripts/bin/react-scripts.js build",
+    "doc": "jsdoc -c jsdoc.json",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
