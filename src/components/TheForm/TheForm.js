@@ -16,7 +16,6 @@ function TheForm({
     uuid, title, dueDate, description, files,
   } = formData;
 
-  const [unsavedFilesUuids, setUnsavedFilesUuids] = useState([]);
   const [fileInputKey, setFileInputKey] = useState(0);
 
   const cleanForm = () => {
@@ -34,37 +33,34 @@ function TheForm({
   };
 
   const onChangeFiles = (e) => {
-    const newFiles = Object.values(e.target.files).map(({ name, type }) => (
-      { uuid: uid(), name, type }
-    ));
+    // uploading files
+    const newFiles = [];
+    Object.values(e.target.files).forEach((file) => {
+      const fileUuid = uid();
+      newFiles.push({ uuid: fileUuid, name: file.name, type: file.type });
+      uploadBytes(storageRef(storage, `/${fileUuid}`), file).then((snapshot) => {
+        // save uploaded file's url
+        getDownloadURL(snapshot.ref).then((url) => {
+          setFilesUrls((urls) => [...urls, { url, uuid: fileUuid }]);
+        });
+      });
+    });
     // add files to formData
     setFormData({ ...formData, files: [...files, ...newFiles] });
-    // add files' UUIDs to unsavedFilesUuids
-    setUnsavedFilesUuids([...unsavedFilesUuids, ...newFiles.map((f) => f.uuid)]);
+
     // clean file input through rerendering
     setFileInputKey((key) => key + 1);
   };
 
   const deleteFile = (fileUuid) => {
     // delete files
-    if (unsavedFilesUuids.includes(fileUuid)) {
-      // hasn't been uploaded to server => delete localy
-      // delete from unsaved files
-      setUnsavedFilesUuids(unsavedFilesUuids.filter((id) => id !== fileUuid));
+    deleteObject(storageRef(storage, `/${fileUuid}`)).then(() => {
+      // delete from files
+      setFilesUrls((fs) => fs.filter((f) => f.uuid !== fileUuid));
       // delete from formData
       const newFiles = files.filter((f) => f.uuid !== fileUuid);
       setFormData((data) => ({ ...data, files: newFiles }));
-    } else {
-      // has been uploaded to server => delete globaly and localy
-      // delete on the server
-      deleteObject(storageRef(storage, `/${fileUuid}`)).then(() => {
-        // delete from files
-        setFilesUrls((fs) => fs.filter((f) => f.uuid !== fileUuid));
-        // delete from formData
-        const newFiles = files.filter((f) => f.uuid !== fileUuid);
-        setFormData((data) => ({ ...data, files: newFiles }));
-      });
-    }
+    });
   };
 
   const onSubmit = () => {
@@ -83,17 +79,6 @@ function TheForm({
       // POST task
       set(dbRef(db, `/${newTask.uuid}`), newTask);
     }
-
-    // save unsaved files
-    files.filter((f) => unsavedFilesUuids.includes(f.uuid)).forEach((file) => {
-      // upload file
-      uploadBytes(storageRef(storage, `/${file.uuid}`), file).then((snapshot) => {
-        // save uploaded file's url
-        getDownloadURL(snapshot.ref).then((url) => {
-          setFilesUrls((urls) => [...urls, { url, uuid: file.uuid }]);
-        });
-      });
-    });
     cleanForm();
   };
 

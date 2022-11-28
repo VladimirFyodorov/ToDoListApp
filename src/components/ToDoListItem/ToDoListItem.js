@@ -48,7 +48,7 @@ function ToDoListItem({
     task.files.forEach((f) => {
       // delete file on the server
       deleteObject(storageRef(storage, `/${f.uuid}`)).then(() => (
-        // delete file localy
+        // delete file's url localy
         setFilesUrls((file) => file.filter(({ uuid }) => uuid !== f.uuid))
       ));
     });
@@ -87,7 +87,7 @@ function ToDoListItem({
           <p className="task-option-description">Files:</p>
         </>
       )}
-      {thisTaskIsShowed && files.length > 0
+      {thisTaskIsShowed && files
       && files.map((file) => (
         <p key={file?.uuid} className="task-option-description">
           <a className="task-option-description" href={file?.url}>
