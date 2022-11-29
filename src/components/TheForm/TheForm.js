@@ -44,12 +44,10 @@ function TheForm({
    * @memberof TheForm
    * @desc On change event changes formData
    * @param {Event} Event - Change event
-   * @param {String} Key - Which task field is updated
    */
-  const onChange = (e, key) => {
-    const newObj = { ...formData };
-    newObj[key] = e.target.value;
-    setFormData(newObj);
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
   /**
@@ -123,22 +121,25 @@ function TheForm({
     <div className="the-form">
       <h3>Form</h3>
       <input
+        name="title"
         placeholder="Title"
         className="form"
         value={title || ''}
-        onChange={(e) => onChange(e, 'title')}
+        onChange={onChange}
       />
       <input
+        name="dueDate"
         placeholder="Due date"
         className="form"
         type="date"
         value={dueDate || ''}
-        onChange={(e) => onChange(e, 'dueDate')}
+        onChange={onChange}
       />
       <textarea
+        name="description"
         placeholder="Description"
         value={description || ''}
-        onChange={(e) => onChange(e, 'description')}
+        onChange={onChange}
       />
       <input
         id="fileUpload"
