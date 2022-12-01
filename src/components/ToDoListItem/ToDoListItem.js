@@ -75,14 +75,10 @@ function ToDoListItem({
    * @access public
    * @memberof ToDoListItem
    * @param {event} e - Click event on task div
-   * @desc Showes task: changes showedTaskId to task id if click was on task div
-   * but not on special btn inside this div ('checkbox', 'editBtn', 'deleteBtn')
+   * @desc Showes task through change of showedTaskId
    */
-  const onShowTask = (e) => {
-    // check that it wasn't click on btns. If so than show
-    if (!['checkbox', 'editBtn', 'deleteBtn'].includes(e.target.id)) {
-      toggleShowedTaskId(task.uuid);
-    }
+  const onShowTask = () => {
+    toggleShowedTaskId(task.uuid);
   };
 
   /**
@@ -98,18 +94,22 @@ function ToDoListItem({
   /**
    * @access public
    * @memberof ToDoListItem
-   * @desc Fills From's data with data of this task. Called upon click on edit button
+   * @param {event} e - Click event
+   * @desc Fills From's data with data of this task. Called upon click on edit button.
    */
-  const handleEdit = () => {
+  const handleEdit = (e) => {
+    e.stopPropagation();
     setFormData(task);
   };
 
   /**
    * @access public
    * @memberof ToDoListItem
+   * @param {event} e - Click event
    * @desc Delete task and task's files from database. Called upon click on delete button
    */
-  const handleDelete = () => {
+  const handleDelete = (e) => {
+    e.stopPropagation();
     // delete task
     remove(dbRef(db, `/${task.uuid}`)).then(() => (
       setTasks((tasks) => tasks.filter(({ uuid }) => uuid !== task.uuid))
@@ -130,20 +130,18 @@ function ToDoListItem({
         <p>{strName}</p>
         <div className="task-btns">
           <input
-            id="checkbox"
             type="checkbox"
             checked={task.isDone}
             style={{ cursor: 'pointer' }}
+            onClick={(e) => e.stopPropagation()}
             onChange={toggleTaskIsDone}
           />
           <FontAwesomeIcon
-            id="editBtn"
             icon={faEdit}
             style={{ cursor: 'pointer' }}
             onClick={handleEdit}
           />
           <FontAwesomeIcon
-            id="deleteBtn"
             icon={faTrash}
             style={{ cursor: 'pointer' }}
             onClick={handleDelete}
